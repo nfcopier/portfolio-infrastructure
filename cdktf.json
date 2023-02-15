@@ -1,0 +1,21 @@
+{
+  "language": "typescript",
+  "app": "npx ts-node main.ts",
+  "projectId": "9f87e340-e563-4d63-bb69-3dafedf0c08f",
+  "sendCrashReports": "false",
+  "terraformProviders": [
+    {
+      "name": "linode",
+      "source": "linode/linode",
+      "version": "1.29.4"
+    }
+  ],
+  "terraformModules": [
+  ],
+  "context": {
+    "excludeStackIdFromLogicalIds": "true",
+    "allowSepCharsInLogicalIds": "true",
+    "terraformProviders": [],
+    "terraformModules": []
+  }
+}

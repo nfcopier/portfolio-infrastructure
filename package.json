@@ -1,0 +1,24 @@
+{
+  "name": "portfolio-infrastructure",
+  "version": "1.0.0",
+  "scripts": {
+    "get resources": "cdktf get",
+    "synth": "npx ts-node main.ts",
+    "deploy portfolio": "cdktf deploy --auto-approve portfolio"
+  },
+  "dependencies": {
+    "constructs": "^10.1.216",
+    "cdktf": "^0.15.1",
+    "@cdktf/provider-kubernetes": "^5.0.0",
+    "@cdktf/provider-helm": "^5.0.0",
+    "@cdktf/provider-tls": "^5.0.0",
+    "@cdktf/provider-local": "^5.0.0",
+    "@cdktf/provider-null": "^5.0.0",
+    "cdktf-local-exec": "^0.2.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4",
+    "@types/node": "^18.11.18",
+    "cdktf-cli": "^0.15.1"
+  }
+}

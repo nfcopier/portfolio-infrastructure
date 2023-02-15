@@ -1,0 +1,10 @@
+node_modules/
+.idea/
+dist/
+temp/
+**/*.js
+**/*.js.map
+/cdktf.out/
+**/*.tfstate
+**/*.tfstate.backup
+/.gen/

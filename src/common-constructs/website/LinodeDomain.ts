@@ -1,19 +1,47 @@
 import {Construct} from "constructs";
 import {Domain} from "../../../.gen/providers/linode/domain";
+import {DomainRecord} from "../../../.gen/providers/linode/domain-record";
 
 interface LinodeDomainConfig {
-    domain: string;
-    email: string;
+    domainName: string;
+    soaEmail: string;
+    ipAddress: string;
 }
 
-export class LinodeDomain extends Construct {
+export class LinodeDomain {
+
+    private readonly scope: Construct;
 
     public constructor(scope: Construct, config: LinodeDomainConfig) {
-        super(scope, "domain-construct");
-        new Domain(this, "domain", {
+        this.scope = scope;
+        const domain = this.domain(config);
+        this.nakedSubdomain(config.ipAddress, domain);
+        this.wwwSubdomain(config.ipAddress, domain);
+    }
+    private domain(domainConfig: LinodeDomainConfig): Domain {
+        return new Domain(this.scope, "domain", {
             type: "master",
-            domain: config.domain,
-            soaEmail: config.email,
+            domain: domainConfig.domainName,
+            soaEmail: domainConfig.soaEmail
+        });
+    }
+
+    private nakedSubdomain(ipAddress: string, domain: Domain): void {
+        new DomainRecord(this.scope, "naked-domain", {
+            recordType: "A",
+            name: domain.domain,
+            target: ipAddress,
+            domainId: domain.getNumberAttribute("id"),
+            ttlSec: 30
+        });
+    }
+
+    private wwwSubdomain(ipAddress: string, domain: Domain): void {
+        new DomainRecord(this.scope, "www-domain", {
+            recordType: "A",
+            name: "www",
+            target: ipAddress,
+            domainId: domain.getNumberAttribute("id"),
             ttlSec: 30
         });
     }

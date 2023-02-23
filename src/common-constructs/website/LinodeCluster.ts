@@ -3,6 +3,7 @@ import {LkeCluster, LkeClusterConfig} from "../../../.gen/providers/linode/lke-c
 import {ITerraformDependable} from "cdktf";
 import {KubeConfig} from "../kubernetes/KubeConfig";
 import {WebsiteProviderSet} from "../provider-sets/WebsiteProviderSet";
+import {KubeProviderSet} from "../provider-sets/KubeProviderSet";
 
 export class LinodeCluster extends Construct implements ITerraformDependable {
 
@@ -15,6 +16,7 @@ export class LinodeCluster extends Construct implements ITerraformDependable {
         const cluster = new LkeCluster(this, "lke-cluster", this.getConfig(label));
         this._fqn = cluster.fqn;
         this._kubeConfig = new KubeConfig(this, cluster.kubeconfig);
+        new KubeProviderSet(scope, this._kubeConfig.path);
     }
 
     private getConfig(label: string): LkeClusterConfig {

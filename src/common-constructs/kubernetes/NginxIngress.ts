@@ -4,41 +4,47 @@ import {
     DataKubernetesService,
     DataKubernetesServiceStatusLoadBalancerOutputReference
 } from "@cdktf/provider-kubernetes/lib/data-kubernetes-service";
-import {KubeProviderSet} from "../provider-sets/KubeProviderSet";
 import {KubeConfig} from "./KubeConfig";
 
-export class NginxIngress {
+interface NginxIngressConfig {
+    namespace: string;
+    kubeConfig: KubeConfig;
+}
 
-    private readonly kubeNamespace = "nginx-system";
+export class NginxIngress extends Construct {
+
+    private readonly kubeNamespace: string;
     private readonly helmRepository = "https://kubernetes.github.io/ingress-nginx";
+    private readonly chart = "ingress-nginx";
 
     private readonly loadBalancer: DataKubernetesServiceStatusLoadBalancerOutputReference;
 
-    public constructor(scope: Construct, kubeConfig: KubeConfig) {
-        new KubeProviderSet(scope, kubeConfig.path);
-        const release = this.NginxRelease(scope, kubeConfig);
-        const service = this.nginxService(scope, release);
+    public constructor(scope: Construct, config: NginxIngressConfig) {
+        super(scope, "ingress-nginx");
+        this.kubeNamespace = config.namespace;
+        const release = this.Release(config.kubeConfig);
+        const service = this.Service(release);
         this.loadBalancer = service.status.get(0).loadBalancer.get(0);
     }
 
-    private nginxService(scope: Construct, release: Release): DataKubernetesService {
-        return new DataKubernetesService(scope, "service", {
+    private Release(kubeConfig: KubeConfig): Release {
+        return new Release(this, "release", {
+            name: "ingress-controller",
+            namespace: this.kubeNamespace,
+            repository: this.helmRepository,
+            chart: this.chart,
+            atomic: true,
+            dependsOn: [kubeConfig]
+        });
+    }
+
+    private Service(release: Release): DataKubernetesService {
+        return new DataKubernetesService(this, "service", {
             metadata: {
                 name: "ingress-controller-ingress-nginx-controller",
                 namespace: this.kubeNamespace
             },
             dependsOn: [release]
-        });
-    }
-
-    private NginxRelease(scope: Construct, kubeConfig: KubeConfig): Release {
-        return new Release(scope, "release", {
-            name: "ingress-controller",
-            namespace: this.kubeNamespace,
-            repository: this.helmRepository,
-            chart: "ingress-nginx",
-            createNamespace: true,
-            dependsOn: [kubeConfig]
         });
     }
 
